@@ -1,0 +1,217 @@
+
+HAMMING CODE:
+
+#include<iostream>
+ 
+using namespace std;
+ 
+int main() {
+    int data[10];
+    int dataatrec[10],c,c1,c2,c3,i;
+ 
+    cout<<"Enter 4 bits of data one by one\n";
+    cin>>data[0];
+    cin>>data[1];
+    cin>>data[2];
+    cin>>data[4];
+ 
+    //Calculation of even parity
+    data[6]=data[0]^data[2]^data[4];
+data[5]=data[0]^data[1]^data[4];
+data[3]=data[0]^data[1]^data[2];
+ 
+cout<<"\nEncoded data is\n";
+for(i=0;i<7;i++)
+        cout<<data[i];
+    
+cout<<"\n\nEnter received data bits one by one\n";
+    for(i=0;i<7;i++)
+        cin>>dataatrec[i];
+ 
+    c1=dataatrec[6]^dataatrec[4]^dataatrec[2]^dataatrec[0];
+c2=dataatrec[5]^dataatrec[4]^dataatrec[1]^dataatrec[0];
+c3=dataatrec[3]^dataatrec[2]^dataatrec[1]^dataatrec[0];
+c=c3*4+c2*2+c1 ;
+ 
+    if(c==0) {
+cout<<"\nNo error while transmission of data\n";
+    }
+else {
+cout<<"\nError on position "<<c;
+cout<<"\nData sent : ";
+for(i=0;i<7;i++)
+         cout<<data[i];
+        
+cout<<"\nData received : ";
+        for(i=0;i<7;i++)
+         cout<<dataatrec[i];
+        
+cout<<"\nCorrect message is\n";
+        
+//if errorneous bit is 0 we complement it else vice versa
+if(dataatrec[7-c]==0)
+dataatrec[7-c]=1;
+        else
+dataatrec[7-c]=0;
+for (i=0;i<7;i++) {
+cout<<dataatrec[i];
+}
+}
+return 0;
+}
+
+
+
+----------------------------------------
+
+
+SELECTIVE REPEAT :
+
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+// Window size for selective repeat ARQ
+const int WINDOW_SIZE = 4;
+
+// Function to simulate sending a packet
+bool sendPacket(int packet) {
+    // Simulate packet loss by randomly returning false
+    srand(time(0));
+    int random = rand() % 10; // Generate a random number between 0 and 9
+    return random <3 ; // Packet loss probability of 20%
+}
+
+int main() {
+    // Data packets to be sent
+    vector<int> dataPackets = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+    int windowStart = 0;
+    int windowEnd = WINDOW_SIZE - 1;
+    int currentPacket = windowStart;
+
+    while (windowStart < dataPackets.size()) {
+        // Send packets within the window
+        for (int i = windowStart; i <= windowEnd && i < dataPackets.size(); ++i) {
+            cout << "Sending packet: " << dataPackets[i] << endl;
+            bool success = sendPacket(dataPackets[i]);
+
+            if (success) {
+                cout << "ACK received for packet " << dataPackets[i] << endl;
+
+                // Move the window forward
+                windowStart++;
+                windowEnd++;
+            } else {
+                cout << "ACK not received for packet " << dataPackets[i] << endl;
+            }
+        }
+
+        // Prompt for user input to continue sending packets
+        cout << "Press enter to continue sending packets." << endl;
+        cin.ignore();
+    }
+
+    cout << "All packets have been successfully transmitted." << endl;
+
+    return 0;
+}
+
+----------------------------------------
+
+
+GO BACK N ARQ :
+
+
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+int main() {
+    srand(time(NULL));
+    
+    int totalFrames;
+    cout << "Enter the total number of frames: ";
+    cin >> totalFrames;
+    
+    int windowSize;
+    cout << "Enter the window size: ";
+    cin >> windowSize;
+    
+    int base = 1;
+    int nextSeqNum = 1;
+    
+    while (base <= totalFrames) {
+        for (int i = base; i < base + windowSize && i <= totalFrames; i++) {
+            cout << "Sending Frame " << i << "..." << endl;
+        }
+        
+        int acknowledgement = rand() % 2; // Simulating random acknowledgement (0: Acknowledged, 1: Not Acknowledged)
+        
+        if (acknowledgement == 0) {
+            int numAckedFrames = rand() % windowSize + 1; // Simulating random number of frames acknowledged
+            cout << numAckedFrames << " frame(s) Acknowledged." << endl;
+            
+            base += numAckedFrames;
+            nextSeqNum = base;
+        } else {
+            cout << "Frames Not Acknowledged. Retransmitting Window..." << endl;
+            nextSeqNum = base;
+        }
+        
+        cout << endl;
+    }
+    
+    cout << "All frames have been transmitted and acknowledged." << endl;
+    
+    return 0;
+}
+
+
+-------------------------------------
+
+STOP AND WAIT ARQ:
+
+
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+int main() {
+    srand(time(NULL));
+    
+    int totalFrames;
+    cout << "Enter the total number of frames: ";
+    cin >> totalFrames;
+    
+    int currentFrame = 1;
+    int transmittedFrames = 0;
+    
+    while (transmittedFrames < totalFrames) {
+        cout << "Sending Frame " << currentFrame << "..." << endl;
+        
+        int acknowledgement = rand() % 2; // Simulating random acknowledgement (0: Acknowledged, 1: Not Acknowledged)
+        
+        if (acknowledgement == 0) {
+            cout << "Frame " << currentFrame << " Acknowledged." << endl;
+            transmittedFrames++;
+            currentFrame++;
+        } else {
+            cout << "Frame " << currentFrame << " Not Acknowledged. Retransmitting Frame..." << endl;
+        }
+        
+        cout << endl;
+    }
+    
+    cout << "All frames have been transmitted and acknowledged." << endl;
+    
+    return 0;
+}
+
